@@ -33,25 +33,13 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   const [query, setQuery] = useState(selectedItem?.name || '');
   const [results, setResults] = useState<GeoEntity[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(!selectedItem);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   const debouncedQuery = useDebounce(query, 300);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setQuery(selectedItem?.name || '');
-  }, [selectedItem]);
-
-  useEffect(() => {
-    if (!selectedItem) {
-      loadInitialCountries();
-
-      setIsDropdownOpen(true);
-    }
-  }, []);
 
   const loadInitialCountries = useCallback(async () => {
     setIsLoading(true);
@@ -99,7 +87,6 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         const data = await response.json();
 
         let items = Object.values(data) as GeoEntity[];
-
         items = items.filter((item) => item.type === requiredType);
 
         setResults(items);
@@ -115,11 +102,16 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   );
 
   useEffect(() => {
+    if (selectedItem && selectedItem.name !== query) {
+      setQuery(selectedItem.name);
+    }
+  }, [selectedItem, query]);
+
+  useEffect(() => {
     if (!selectedItem) {
       loadInitialCountries();
-      setIsDropdownOpen(true);
     }
-  }, []);
+  }, [selectedItem, loadInitialCountries]);
 
   useEffect(() => {
     const currentQueryLength = debouncedQuery.length;

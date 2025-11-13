@@ -23,10 +23,6 @@ const useDebounce = <T,>(value: T, delay: number): T => {
   return debouncedValue;
 };
 
-const filterGeoResults = (items: GeoEntity[], type: GeoType): GeoEntity[] => {
-  return items.filter((item) => item.type === type);
-};
-
 export const SearchInput: React.FC<SearchInputProps> = ({
   placeholder,
   onSelect,

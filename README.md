@@ -6,8 +6,8 @@
 
 ## 🚀 Статус виконання (Завдання 1 завершено)
 
-* **[GitHub Repository:](https://github.com/JulyaPetrovskaya/tat-frontend-test-task)** https://github.com/JulyaPetrovskaya/tat-frontend-test-task-ts
-* **[Live Demo (Vercel):](https://tat-frontend-test-task.vercel.app/)** https://tat-frontend-test-task-ts.vercel.app/
+- **[GitHub Repository](https://github.com/JulyaPetrovskaya/tat-frontend-test-task-ts)**
+- **[Live Demo](https://tat-frontend-test-task-ts.vercel.app/)**
 
 ---
 
@@ -16,16 +16,19 @@
 Щоб запустити застосунок локально:
 
 1.  **Клонуйте репозиторій:**
+
     ```bash
     git clone https://github.com/JulyaPetrovskaya/tat-frontend-test-task-ts
     ```
 
 2.  **Перейдіть до папки проєкту:**
+
     ```bash
     cd tat-frontend-test-task-ts
     ```
 
 3.  **Встановіть залежності:**
+
     ```bash
     npm install
     ```
@@ -66,8 +69,8 @@ function getPrice(priceId: string): Promise<Response>;
 ```ts
 // Базові сутності
 type Country = { id: string; name: string; flag: string };
-type City    = { id: number; name: string };
-type Hotel   = {
+type City = { id: number; name: string };
+type Hotel = {
   id: number;
   name: string;
   img: string;
@@ -77,43 +80,37 @@ type Hotel   = {
   countryName: string;
 };
 
-// Колекції у вигляді словників
 type CountriesMap = Record<string, Country>;
-type HotelsMap    = Record<string, Hotel>;
+type HotelsMap = Record<string, Hotel>;
 
-// Пошук цін (оффер)
 type PriceOffer = {
-  id: string;           // UUID
-  amount: number;       // 1500–4000
-  currency: "usd";      // нижній регістр за поточною реалізацією
-  startDate: string;    // YYYY-MM-DD (сьогодні +2..5)
-  endDate: string;      // YYYY-MM-DD (start +4..7)
-  hotelID?: string;     // додається в результатах пошуку цін
+  id: string;
+  amount: number;
+  currency: 'usd';
+  startDate: string;
+  endDate: string;
+  hotelID?: string;
 };
 
-// Відповідь пошуку цін (готові результати)
 type PricesMap = Record<string, PriceOffer>;
 
-// Підказки гео-пошуку
 type GeoEntity =
-  | (Country & { type: "country" })
-  | (City    & { type: "city" })
-  | (Hotel   & { type: "hotel" });
+  | (Country & { type: 'country' })
+  | (City & { type: 'city' })
+  | (Hotel & { type: 'hotel' });
 
 type GeoResponse = Record<string, GeoEntity>;
 
-// Уніфікована помилка
 type ErrorResponse = {
-  code: number;           // 400, 404, 425
+  code: number;
   error: true;
   message: string;
-  waitUntil?: string;     // ISO для 425
+  waitUntil?: string;
 };
 
-// Успішні спеціальні відповіді
 type StartSearchResponse = {
   token: string;
-  waitUntil: string;      // ISO коли можна питати результати
+  waitUntil: string;
 };
 
 type GetSearchPricesResponse = {
@@ -121,7 +118,7 @@ type GetSearchPricesResponse = {
 };
 
 type StopSearchResponse = {
-  status: "cancelled";
+  status: 'cancelled';
   message: string;
 };
 ```
@@ -131,36 +128,51 @@ type StopSearchResponse = {
 ## 🔧 Опис функцій
 
 ### `getCountries(): Promise<Response>`
+
 Повертає словник країн.
 
 - **200 OK** → `CountriesMap`
 
 ```json
 {
-  "115": { "id": "115", "name": "Туреччина", "flag": "https://flagcdn.com/w40/tr.png" },
-  "43":  { "id": "43",  "name": "Єгипет",    "flag": "https://flagcdn.com/w40/eg.png" },
-  "34":  { "id": "34",  "name": "Греція",    "flag": "https://flagcdn.com/w40/gr.png" }
+  "115": {
+    "id": "115",
+    "name": "Туреччина",
+    "flag": "https://flagcdn.com/w40/tr.png"
+  },
+  "43": {
+    "id": "43",
+    "name": "Єгипет",
+    "flag": "https://flagcdn.com/w40/eg.png"
+  },
+  "34": {
+    "id": "34",
+    "name": "Греція",
+    "flag": "https://flagcdn.com/w40/gr.png"
+  }
 }
 ```
 
 ---
 
 ### `searchGeo(query?: string): Promise<Response>`
+
 Імітує підказки для країн/міст/готелів (набір залежить від довжини `query`).
 
 - **200 OK** → `GeoResponse`
 
 ```json
 {
-  "712":  { "id": 712,  "name": "Хургада", "type": "city" },
+  "712": { "id": 712, "name": "Хургада", "type": "city" },
   "7953": { "id": 7953, "name": "Marlin Inn Azur Resort", "type": "hotel" },
-  "115":  { "id": "115","name": "Туреччина", "type": "country" }
+  "115": { "id": "115", "name": "Туреччина", "type": "country" }
 }
 ```
 
 ---
 
 ### `startSearchPrices(countryID: string): Promise<Response>`
+
 Стартує пошук цін по країні.
 
 - **200 OK** → `StartSearchResponse`
@@ -179,6 +191,7 @@ type StopSearchResponse = {
 ---
 
 ### `getSearchPrices(token: string): Promise<Response>`
+
 Повертає результати пошуку цін або статус «ще не готово».
 
 - **200 OK** → `GetSearchPricesResponse`
@@ -186,7 +199,7 @@ type StopSearchResponse = {
 - **425 Too Early** → `ErrorResponse` (ще не готово; містить `waitUntil`)
 
 ```json
-// 200
+
 {
   "prices": {
     "ff7e5e3a-1a5d-4f33-9e1a-8c55c0028eaf": {
@@ -200,10 +213,8 @@ type StopSearchResponse = {
   }
 }
 
-// 404
 { "code": 404, "error": true, "message": "Search with this token was not found." }
 
-// 425
 {
   "code": 425,
   "error": true,
@@ -215,22 +226,24 @@ type StopSearchResponse = {
 ---
 
 ### `stopSearchPrices(token: string): Promise<Response>`
+
 Скасовує активний пошук.
 
 - **200 OK** → `StopSearchResponse`
 - **404 Not Found** → `ErrorResponse` (невідомий токен)
 
 ```json
-// 200
+
 { "status": "cancelled", "message": "Search has been cancelled successfully." }
 
-// 404
+
 { "code": 404, "error": true, "message": "Search with this token was not found." }
 ```
 
 ---
 
 ### `getHotels(countryID: string): Promise<Response>`
+
 Повертає словник готелів у країні.
 
 - **200 OK** → `HotelsMap` (може бути порожнім `{}`)
@@ -252,13 +265,14 @@ type StopSearchResponse = {
 ---
 
 ### `getHotel(hotelId: number | string): Promise<Response>`
+
 Повертає деталі готелю.
 
 - **200 OK** → `Hotel`
 - **404 Not Found** → `ErrorResponse` (якщо не знайдено)
 
 ```json
-// 200
+
 {
   "id": 7953,
   "name": "Marlin Inn Azur Resort",
@@ -269,20 +283,21 @@ type StopSearchResponse = {
   "countryName": "Єгипет"
 }
 
-// 404
+
 { "code": 404, "error": true, "message": "Hotel with this ID was not found." }
 ```
 
 ---
 
 ### `getPrice(priceId: string): Promise<Response>`
+
 Повертає (згенеровану) ціну по конкретному `priceId`.
 
 - **200 OK** → `PriceOffer` (з підставленим `id = priceId`)
 - **404 Not Found** → `ErrorResponse` (якщо `priceId` не передано)
 
 ```json
-// 200
+
 {
   "id": "c1d2f9c2-8e1e-45f3-9a11-1df4b5f1f7c3",
   "amount": 2750,
@@ -291,7 +306,7 @@ type StopSearchResponse = {
   "endDate": "2025-09-03"
 }
 
-// 404
+
 { "code": 404, "error": true, "message": "Offer with this ID was not found." }
 ```
 

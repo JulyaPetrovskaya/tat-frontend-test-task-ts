@@ -1,7 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SearchForm } from './components/SearchForm';
-import { getSearchPrices, startSearchPrices, getHotels } from './api';
-import type { Hotel } from './types/geo';
+import {
+  getSearchPrices,
+  startSearchPrices,
+  getHotels,
+  getCountries,
+} from './api';
+import type { Hotel, Country } from './types/geo';
 import { TourCard } from './components/TourCard';
 import type {
   ApiErrorResponse,
@@ -124,18 +129,18 @@ function App() {
   const [searchResults, setSearchResults] = useState<
     Record<string, SearchResultState>
   >({});
-  const [activeCountryId, setActiveCountryId] = useState<string | 
-  null>(null);
+  const [activeCountryId, setActiveCountryId] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
-  
+
   const [hotelsCache, setHotelsCache] = useState<
     Record<string, Record<string, Hotel>>
   >({});
+  const [countries, setCountries] = useState<Record<string, Country>>({});
 
   const currentResult = activeCountryId
     ? searchResults[activeCountryId]
     : undefined;
-  
+
   const shouldShowEmptyState =
     hasSearched &&
     !isLoading &&
@@ -176,6 +181,16 @@ function App() {
     return null;
   })();
 
+  useEffect(() => {
+    const loadCountries = async () => {
+      const resp = await getCountries();
+      const data: Record<string, Country> = await resp.json();
+      setCountries(data);
+    };
+
+    loadCountries();
+  }, []);
+
   const handleSearch = async (countryId: string) => {
     setActiveCountryId(countryId);
     setHasSearched(true);
@@ -203,7 +218,6 @@ function App() {
       getHotelsForCountry(countryId);
 
       setError(null);
-
     } catch (err) {
       if (err instanceof Response) {
         let payload: ApiErrorResponse = {};
@@ -237,6 +251,32 @@ function App() {
     return hotelsData;
   };
 
+  const getToursForRender = () => {
+    if (!currentResult || !activeCountryId) return [];
+
+    const hotels = hotelsCache[activeCountryId];
+    if (!hotels) return [];
+
+    return Object.values(currentResult.pricesById)
+      .map((price) => {
+        const hotel = hotels[price.hotelID];
+        if (!hotel) return null;
+
+        return {
+          price,
+          hotel,
+          country: countries[hotel.countryId],
+        };
+      })
+      .filter(
+        (
+          item
+        ): item is { price: SearchPrice; hotel: Hotel; country: Country } =>
+          item !== null
+      );
+  };
+  const tours = getToursForRender();
+
   return (
     <div className='app-container'>
       <SearchForm
@@ -247,14 +287,14 @@ function App() {
 
       {currentResult && (
         <div className='tours-grid'>
-          {Object.values(currentResult.pricesById).map((price) => {
-            const hotels = hotelsCache[activeCountryId!];
-            if (!hotels) return null;
-            const hotel = hotels[price.hotelID];
-            if (!hotel) return null;
-
-            return <TourCard key={price.id} hotel={hotel} price={price} />;
-          })}
+          {tours.map(({ price, hotel, country }) => (
+            <TourCard
+              key={price.id}
+              price={price}
+              hotel={hotel}
+              country={country}
+            />
+          ))}
         </div>
       )}
     </div>

@@ -1,12 +1,13 @@
-import type { Hotel } from '../types/geo';
+import type { Hotel, Country } from '../types/geo';
 import type { SearchPrice } from '../types/search';
 
 interface TourCardProps {
   hotel: Hotel;
   price: SearchPrice;
+  country: Country;
 }
 
-export const TourCard: React.FC<TourCardProps> = ({ hotel, price }) => {
+export const TourCard: React.FC<TourCardProps> = ({ hotel, price, country }) => {
   const formatDate = (date: string) => {
     const d = new Date(date);
     return d.toLocaleDateString('uk-UA');
@@ -18,7 +19,7 @@ export const TourCard: React.FC<TourCardProps> = ({ hotel, price }) => {
       <h3 className='tour-card__title'>{hotel.name}</h3>
       <div className='tour-card__location'>
         <img
-          src={`https://flagcdn.com/w20/${hotel.countryId === '43' ? 'eg' : hotel.countryId === '115' ? 'tr' : 'gr'}.png`}
+          src={country.flag}
           className='tour-card__flag'
         />
         <span>

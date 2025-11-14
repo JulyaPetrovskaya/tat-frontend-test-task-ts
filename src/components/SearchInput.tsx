@@ -89,9 +89,10 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         let items = Object.values(data) as GeoEntity[];
 
         const queryLower = searchQuery.toLowerCase();
-        
+
         items = items.filter(
-            (item) => item.type === requiredType && 
+          (item) =>
+            item.type === requiredType &&
             item.name.toLowerCase().includes(queryLower)
         );
 
@@ -156,6 +157,9 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
     setQuery(newQuery);
+    if (!isDropdownOpen) {
+      setIsDropdownOpen(true);
+    }
     if (selectedItem && newQuery !== selectedItem.name) {
       onSelect(null);
     }
@@ -227,10 +231,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 
   const shouldShowDropdown =
     isDropdownOpen &&
-    (isLoading ||
-      results.length > 0 ||
-      query.length >= 2 ||
-      query.length === 0);
+    (isLoading || results.length > 0 || query.trim().length > 0);
 
   return (
     <div
@@ -268,7 +269,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         <div className='search__dropdown'>
           {isLoading && <div className='search__status'>Завантаження...</div>}
 
-          {!isLoading && results.length === 0 && query.length >= 2 && (
+          {!isLoading && results.length === 0 && query.trim().length > 0 && (
             <div className='search__status'>Нічого не знайдено.</div>
           )}
 

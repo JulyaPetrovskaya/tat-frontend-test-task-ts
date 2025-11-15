@@ -1,7 +1,7 @@
 .tours-grid {
   width: 100%;
-  margin: 0 auto;
-  padding: 25px;
+  max-width: 2200px;
+  padding: 10px 40px;
 
   display: grid;
   gap: 20px;
@@ -12,13 +12,22 @@
 .tour-card {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 15px;
   width: 100%;
-  max-width: 320px;
+  max-width: 300px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+  }
 
   &__image {
     width: 100%;
@@ -68,8 +77,15 @@
   &__link {
     margin-top: auto;
     font-size: 15px;
-    color: #1a73e8;
-    text-decoration: underline;
+    color: hsl(214, 85%, 52%);
+    text-decoration: none;
     cursor: pointer;
+    transition:
+      color 0.3s ease,
+      text-decoration-color 0.3s ease;
+
+    &:hover {
+      color: hsl(242, 85%, 52%);
+    }
   }
 }

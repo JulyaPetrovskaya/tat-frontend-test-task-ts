@@ -1,8 +1,9 @@
 @use 'variables' as *;
-@use 'form';
-@use 'search';
+@use 'search-form';
+@use 'search-input';
 @use 'toast';
 @use 'tour-card';
+@use 'tour-page';
 
 html {
   box-sizing: border-box;

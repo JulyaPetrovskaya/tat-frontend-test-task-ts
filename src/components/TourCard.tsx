@@ -1,5 +1,6 @@
 import type { Hotel, Country } from '../types/geo';
 import type { SearchPrice } from '../types/search';
+import { Link } from 'react-router-dom';
 
 interface TourCardProps {
   hotel: Hotel;
@@ -7,7 +8,11 @@ interface TourCardProps {
   country: Country;
 }
 
-export const TourCard: React.FC<TourCardProps> = ({ hotel, price, country }) => {
+export const TourCard: React.FC<TourCardProps> = ({
+  hotel,
+  price,
+  country,
+}) => {
   const formatDate = (date: string) => {
     const d = new Date(date);
     return d.toLocaleDateString('uk-UA');
@@ -18,10 +23,7 @@ export const TourCard: React.FC<TourCardProps> = ({ hotel, price, country }) => 
       <img className='tour-card__image' src={hotel.img} alt={hotel.name} />
       <h3 className='tour-card__title'>{hotel.name}</h3>
       <div className='tour-card__location'>
-        <img
-          src={country.flag}
-          className='tour-card__flag'
-        />
+        <img src={country.flag} className='tour-card__flag' />
         <span>
           {hotel.countryName}, {hotel.cityName}
         </span>
@@ -33,9 +35,12 @@ export const TourCard: React.FC<TourCardProps> = ({ hotel, price, country }) => 
       <p className='tour-card__price'>
         {price.amount.toLocaleString('uk-UA')} {price.currency}
       </p>
-      <a href='#' className='tour-card__link'>
+      <Link
+        className='tour-card__link'
+        to={`/tour/${price.id}?hotel=${price.hotelID}`}
+      >
         Відкрити ціну
-      </a>
+      </Link>
     </div>
   );
 };

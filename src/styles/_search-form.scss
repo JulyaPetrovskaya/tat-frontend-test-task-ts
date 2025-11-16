@@ -14,10 +14,10 @@
   background: $color-white;
   border-radius: $border-radius-base;
   box-shadow: $shadow-card;
-  margin: 20px 40px;
+  margin: 20px auto;
 
   @media (max-width: 600px) {
-    margin: 10px 20px;
+    margin: 10px auto;
   }
 
   .search-form__title {

@@ -404,15 +404,17 @@ export default function SearchPage() {
 
       {currentResult && (
         <div className='tours-grid'>
-          {tours.map(({ price, hotel, country }) => (
-            <TourCard
-              key={price.id}
-              price={price}
-              hotel={hotel}
-              country={country}
-              searchQuery={persistedSearchQuery}
-            />
-          ))}
+          {tours
+            .sort((a, b) => a.price.amount - b.price.amount)
+            .map(({ price, hotel, country }) => (
+              <TourCard
+                key={price.id}
+                price={price}
+                hotel={hotel}
+                country={country}
+                searchQuery={persistedSearchQuery}
+              />
+            ))}
         </div>
       )}
     </div>

@@ -4,7 +4,7 @@
 
 ---
 
-## 🚀 Статус виконання (Завдання 1 завершено)
+## 🚀 Статус виконання (Завдання 1-5 завершено)
 
 - **[GitHub Repository](https://github.com/JulyaPetrovskaya/tat-frontend-test-task-ts)**
 - **[Live Demo](https://tat-frontend-test-task-ts.vercel.app/)**

@@ -138,7 +138,7 @@ export default function SearchPage() {
     }
   };
 
-  const startSearchCycle = async (countryId: string, lockId: number) => {
+  const startSearchCycle = async (countryId: string) => {
     setIsLoading(true);
 
     const abortController = new AbortController();
@@ -157,8 +157,6 @@ export default function SearchPage() {
       token,
       controller: abortController,
     };
-    releaseSubmitLock(lockId);
-
     try {
       const prices = await fetchPricesWithPolling(token, waitUntil, {
         signal: abortController.signal,
@@ -197,7 +195,7 @@ export default function SearchPage() {
 
     try {
       await cancelActiveSearch();
-      await startSearchCycle(countryId, lockId);
+      await startSearchCycle(countryId);
     } catch (err) {
       await handleSearchError(err);
     } finally {
@@ -210,9 +208,40 @@ export default function SearchPage() {
     setHasSearched(true);
     setError(null);
 
-    if (searchResults[countryId]) return;
+    setSearchResults((prev) => {
+      if (!prev[countryId]) return prev;
+
+      const next = { ...prev };
+      delete next[countryId];
+      return next;
+    });
 
     void runSearchFlow(countryId);
+  };
+
+  const handleCountrySelectionChange = (countryId: string | null) => {
+    if (!isSubmitLocked) return;
+
+    const isDifferentCountry =
+      countryId && activeCountryId && countryId !== activeCountryId;
+
+    if (!isDifferentCountry) return;
+
+    setIsSubmitLocked(false);
+    setIsLoading(false);
+    setError(null);
+
+    setSearchResults((prev) => {
+      if (!activeCountryId || !prev[activeCountryId]) {
+        return prev;
+      }
+
+      const next = { ...prev };
+      delete next[activeCountryId];
+      return next;
+    });
+
+    void cancelActiveSearch();
   };
 
   const getHotelsForCountry = async (countryId: string) => {
@@ -257,6 +286,7 @@ export default function SearchPage() {
         onSubmit={handleSearch}
         isSearching={isLoading}
         isSubmitDisabled={isSubmitLocked}
+        onSelectedCountryChange={handleCountrySelectionChange}
         footer={statusMessage}
       />
 

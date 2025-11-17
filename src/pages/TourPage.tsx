@@ -12,6 +12,8 @@ import { CalendarIcon } from '../utils/icons/CalendarIcon';
 export default function TourPage() {
   const { priceId } = useParams<{ priceId: string }>();
   const [searchParams] = useSearchParams();
+
+  // Отримуємо параметр готелю з URL, щоб повернутися назад і видалити його
   const hotelId = searchParams.get('hotel');
   const backParams = new URLSearchParams(searchParams);
   backParams.delete('hotel');

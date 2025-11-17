@@ -4,6 +4,7 @@ import { SearchForm } from '../components/SearchForm';
 import { TourCard } from '../components/TourCard';
 import { normalizeSearchResult } from '../services/normalize';
 import { fetchPricesWithPolling } from '../services/fetchPrices';
+import { useSearch } from '../context/SearchContext';
 
 import {
   startSearchPrices,
@@ -16,7 +17,6 @@ import type { Hotel, Country } from '../types/geo';
 import type {
   ApiErrorResponse,
   SearchPrice,
-  SearchResultState,
   StartSearchResponse,
 } from '../types/search';
 
@@ -25,12 +25,14 @@ import '../styles/main.scss';
 export default function SearchPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchResults, setSearchResults] = useState<
-    Record<string, SearchResultState>
-  >({});
-  const [activeCountryId, setActiveCountryId] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [isSubmitLocked, setIsSubmitLocked] = useState(false);
+  const {
+    searchResults,
+    setSearchResults,
+    activeCountryId,
+    setActiveCountryId,
+  } = useSearch();
 
   const [hotelsCache, setHotelsCache] = useState<
     Record<string, Record<string, Hotel>>
@@ -107,6 +109,7 @@ export default function SearchPage() {
     loadCountries();
   }, []);
 
+  //Відновлення стану з URL при першому рендері
   useEffect(() => {
     if (hasHydratedFromParamsRef.current) return;
     hasHydratedFromParamsRef.current = true;
@@ -115,41 +118,35 @@ export default function SearchPage() {
       return;
     }
 
-    try {
-      const parsedResult = JSON.parse(currentResultParam) as SearchResultState;
+    const token = currentResultParam;
 
-      setSearchResults((prev) => ({
-        ...prev,
-        [currentCountryParam]: parsedResult,
-      }));
-      setActiveCountryId(currentCountryParam);
+    setActiveCountryId(currentCountryParam);
+    setError(null);
+
+    const existing = searchResults[currentCountryParam];
+
+    if (existing && existing.token === token) {
       setHasSearched(true);
       setError(null);
       void getHotelsForCountry(currentCountryParam);
-    } catch {
-      setSearchParams(
-        (prev) => {
-          const next = new URLSearchParams(prev);
-          next.delete('country');
-          next.delete('result');
-          next.delete('hotel');
-          return next;
-        },
-        { replace: true }
-      );
+      return;
     }
   }, [
     currentCountryParam,
     currentResultParam,
+    searchResults,
+    setActiveCountryId,
+    setHasSearched,
+    setError,
     getHotelsForCountry,
     setSearchParams,
   ]);
 
+  //2) Синхронизация URL с состоянием приложения
   useEffect(() => {
-    const serializedResult =
-      activeCountryId && currentResult ? JSON.stringify(currentResult) : null;
-
-    if (!serializedResult || !activeCountryId) {
+    // Якщо немає активної країни або результату — очищуємо URL
+    if (!activeCountryId || !currentResult) {
+      // якщо в URL немає параметрів — нічого не робимо
       if (!currentCountryParam && !currentResultParam && !hotelParam) {
         return;
       }
@@ -171,31 +168,29 @@ export default function SearchPage() {
         },
         { replace: true }
       );
+
       return;
     }
 
-    const isAlreadySynced =
+    const token = currentResult.token;
+
+    // перевіряємо, чи URL вже синхронізований
+    const alreadySynced =
       !hotelParam &&
       currentCountryParam === activeCountryId &&
-      currentResultParam === serializedResult;
+      currentResultParam === token;
 
-    if (isAlreadySynced) {
+    if (alreadySynced) {
       return;
     }
 
+    // Синхронізуємо URL з поточним станом
     setSearchParams(
       (prev) => {
-        const prevString = prev.toString();
         const next = new URLSearchParams(prev);
         next.set('country', activeCountryId);
-        next.set('result', serializedResult);
+        next.set('result', token);
         next.delete('hotel');
-        const nextString = next.toString();
-
-        if (nextString === prevString) {
-          return prev;
-        }
-
         return next;
       },
       { replace: true }
